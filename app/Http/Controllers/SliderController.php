@@ -7,12 +7,12 @@ use Illuminate\Http\Request;
 
 class SliderController extends Controller
 {
-    protected $productsImage = [];
+    protected $html = [];
 
     public function index()
     {
         $categories = Category::all();
-        $products = $categories->first()->products;
+        $products = $categories->first()->products()->orderBy('id', 'DESC')->get();
 
         return view('welcome', [
             'categories' => $categories,
@@ -22,12 +22,11 @@ class SliderController extends Controller
 
     public function show(Request $request)
     {
-        $category = Category::find($request->id);
-        $html = [];
-        foreach ($category->products as $product) {
-            $html[] = '<div class="swiper-slide"><div class="swiper__container">'."<img src=".$product->image.">"."</div></div>";
+        $products = Category::find($request->id)->products()->orderBy('id', 'DESC')->get();
+        foreach ($products as $product) {
+            $this->html[] = '<div class="swiper-slide"><div class="swiper__container"  data-count='.count($products).'>'."<img src=".$product->image.">"."</div></div>";
         }
 
-        return response()->json($html);
+        return response()->json($this->html);
     }
 }

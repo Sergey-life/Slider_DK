@@ -9,8 +9,15 @@ $(function () {
             dataType: 'json',
             success: function (resp) {
                 $('.swiper-slide').replaceWith(resp);
+                swiper.params.slidesPerView = $('.swiper__container').data('count');
                 swiper.update();
-                swiper2.update();
+                swiper.slideTo(4);
+                swipe2.update();
+                swiper2.slideTo(4);
+                // swiper.slideTo(4);
+                // swiper2.update();
+                // swiper2.slideTo(4);
+
                 // for (i = 0; i < resp.length; ++i) {
                 //     console.log(resp[i].image);
                 //     obj.replaceWith(`<div class="swiper-slide"><img src="${resp[1].image}"></div>`);
@@ -30,15 +37,15 @@ $(function () {
         });
     });
     var swiper = new Swiper(".mySwiper", {
-        loop: true,
+        loop: false,
         spaceBetween: 10,
-        slidesPerView: 3,
+        slidesPerView: 'auto',
         freeMode: true,
         watchSlidesProgress: true,
-        maxBackfaceHiddenSlides: 1
+        maxBackfaceHiddenSlides: 1,
     });
     var swiper2 = new Swiper(".mySwiper2", {
-        loop: true,
+        loop: false,
         spaceBetween: 10,
         navigation: {
             nextEl: ".swiper-button-next",
