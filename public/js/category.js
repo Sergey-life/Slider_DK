@@ -1,4 +1,6 @@
 $(function () {
+    const countImage = $('.swiper__container').data('count');
+
     $('select').change(function (e) {
         e.preventDefault();
         let url = $('option').data('url')
@@ -9,42 +11,25 @@ $(function () {
             dataType: 'json',
             success: function (resp) {
                 $('.swiper-slide').replaceWith(resp);
-                swiper.params.slidesPerView = $('.swiper__container').data('count');
-                swiper.update();
-                swiper.slideTo(4);
-                swipe2.update();
-                swiper2.slideTo(4);
-                // swiper.slideTo(4);
-                // swiper2.update();
-                // swiper2.slideTo(4);
-
-                // for (i = 0; i < resp.length; ++i) {
-                //     console.log(resp[i].image);
-                //     obj.replaceWith(`<div class="swiper-slide"><img src="${resp[1].image}"></div>`);
-                //     objTwo.replaceWith(`<div class="swiper-slide"><img src="${resp[2].image}"></div>`);
-                // }
-                // resp.forEach(function (el) {
-                //     console.log(el);
-
-                // });
-                    // $('.swiper-slide').replaceWith(`<div class="swiper-slide"><img src="${resp[i].image}"></div>`);
-                // data.forEach(function (el) {
-                //     console.log(el.image);
-                //     $('.swiper-slide img').attr('src', el.image)
-                // });
-                // $('.swiper-slide img').attr('src', data.image)
+                galleryThumbs.params.slidesPerView = $('.swiper__container').data('count');
+                galleryThumbs.slideTo(4);
+                galleryTop.slideTo(4);
+                galleryThumbs.update();
+                galleryTop.update();
             }
         });
     });
-    var swiper = new Swiper(".mySwiper", {
+    var galleryThumbs = new Swiper(".gallery-thumbs", {
         loop: false,
         spaceBetween: 10,
-        slidesPerView: 'auto',
-        freeMode: true,
+        slidesPerView: countImage,
+        freeMode: false,
         watchSlidesProgress: true,
         maxBackfaceHiddenSlides: 1,
+        observer: true,
+        observeParents: true,
     });
-    var swiper2 = new Swiper(".mySwiper2", {
+    var galleryTop = new Swiper(".gallery-top", {
         loop: false,
         spaceBetween: 10,
         navigation: {
@@ -52,7 +37,7 @@ $(function () {
             prevEl: ".swiper-button-prev",
         },
         thumbs: {
-            swiper: swiper,
+            swiper: galleryThumbs,
         },
     });
 });

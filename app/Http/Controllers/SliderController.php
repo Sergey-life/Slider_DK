@@ -24,7 +24,7 @@ class SliderController extends Controller
     {
         $products = Category::find($request->id)->products()->orderBy('id', 'DESC')->get();
         foreach ($products as $product) {
-            $this->html[] = '<div class="swiper-slide"><div class="swiper__container"  data-count='.count($products).'>'."<img src=".$product->image.">"."</div></div>";
+            $this->html[] = '<div class="swiper-slide"><div class="swiper__container" data-count='.count($products).'>'."<img src=".$product->image.">"."</div></div>";
         }
 
         return response()->json($this->html);
