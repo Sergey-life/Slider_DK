@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
+    private $file;
     /**
      * Display a listing of the resource.
      *
@@ -16,12 +17,9 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $products = Product::when($request->has('title'), function ($q) use ($request) {
-            return $q->where('title', 'like', '%' . $request->get('title') . '%');
-        })
-        ->when($request->has('product_code'), function ($q) use ($request) {
-            return $q->where('product_code', 'like', '%' . $request->get('product_code') . '%');
-        })
+        $products = Product::when($request->has('title'), fn ($q) =>
+            $q->where('title', 'like', '%' . $request->get('title') . '%')
+        )
         ->orderBy('id', 'DESC')
         ->paginate(5);
 
@@ -81,8 +79,8 @@ class ProductController extends Controller
         }
         $product->title = $request->title;
         if ($request->hasFile('image')) {
-            $file = $request->file('image')->store('uploads/images');
-            $product->image = $file;
+            $this->file = $request->file('image')->store('uploads/images');
+            $product->image = $this->file;
         }
         $product->product_code = $request->product_code;
         $product->save();
@@ -90,7 +88,13 @@ class ProductController extends Controller
         $category = Category::find($request->category);
         $product->categories()->sync($category);
 
-        $resp = $request->id ? 'Ви успішно оновили продукт!' : 'Ви успішно створили продукт!';
+        if ($request->main_image) {
+            foreach ($category as $item) {
+                $item->update(['main_image' => $product->image]);
+            }
+        }
+
+        $resp = $request->id ? 'Ви успішно оновили товар!' : 'Ви успішно створили товар!';
 
         return response()->json(['status' => true, 'message' => $resp]);
     }
@@ -138,6 +142,6 @@ class ProductController extends Controller
     public function destroy($id)
     {
         Product::find($id)->delete();
-        return response()->json(['status' => true, 'message' => 'Запис успішно видалено!']);
+        return response()->json(['status' => true, 'message' => 'Товар успішно видалено!']);
     }
 }

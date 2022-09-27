@@ -12,8 +12,6 @@ $(function () {
             success: function (resp) {
                 $('.swiper-slide').replaceWith(resp);
                 galleryThumbs.params.slidesPerView = $('.swiper__container').data('count');
-                galleryThumbs.slideTo(4);
-                galleryTop.slideTo(4);
                 galleryThumbs.update();
                 galleryTop.update();
             }

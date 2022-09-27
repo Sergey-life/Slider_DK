@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class SliderController extends Controller
 {
-    protected $html = [];
+    private $html = [];
 
     public function index()
     {

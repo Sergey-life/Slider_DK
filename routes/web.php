@@ -18,4 +18,8 @@ Route::get('/', [SliderController::class, 'index'])->name('index');
 
 Route::get('category/{id}', [SliderController::class, 'show'])->name('category.show');
 
-Route::resource('products', ProductController::class);
+Route::middleware(['basicAuth'])->group(function () {
+    Route::resource('products', ProductController::class)->only([
+        'index', 'store', 'destroy', 'update'
+    ]);
+});

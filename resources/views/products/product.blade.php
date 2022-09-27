@@ -18,10 +18,10 @@
                                         <input type="text" name="title" value="{{request()->get('title', '')}}" class="form-control" />
                                         @csrf
                                     </div>
-                                    <div class="form-group">
-                                        <label>Пошук по коду</label>
-                                        <input type="text" name="product_code" value="{{request()->get('product_code', '')}}" class="form-control" />
-                                    </div>
+{{--                                    <div class="form-group">--}}
+{{--                                        <label>Пошук по коду</label>--}}
+{{--                                        <input type="text" name="product_code" value="{{request()->get('product_code', '')}}" class="form-control" />--}}
+{{--                                    </div>--}}
                                     <a href="{{url('products')}}" class="btn btn-success" id="search_btn">Пошук</a>
                                 </form>
                             </div>
@@ -61,6 +61,13 @@
                                     <label>Код товару</label>
                                     <input type="text" placeholder="Код товару" value="{{old('product_code')}}" name="product_code" class="form-control">
                                 </div>
+{{--                                <div class="col-12">--}}
+{{--                                    <fieldset>--}}
+{{--                                        <legend class="mb-2">Зробити головним</legend>--}}
+{{--                                            <input type="checkbox" name="main_image" value="true">--}}
+{{--                                            <label for="category" title="Зробити головним для вибраних категорій">Головний продукт</label>--}}
+{{--                                    </fieldset>--}}
+{{--                                </div>--}}
                                 <div class="col-12">
                                     <fieldset>
                                         <legend class="mb-2">Категорія</legend>
@@ -81,7 +88,7 @@
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary">Зберегти</button>
-                            <button type="button" class="btn btn-secondary">Закрити</button>
+                            <button id="btnClose" type="button" class="btn btn-secondary" >Закрити</button>
                         </div>
                     </form>
                 </div>

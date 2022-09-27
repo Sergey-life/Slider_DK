@@ -24,6 +24,10 @@ $(function () {
     for (let category of categories) {
     obj.find(`[value=${category.id}]`).prop('checked', true);
 }
+    $('#btnClose').click(function (e) {
+        e.preventDefault();
+        obj.modal('hide');
+    });
 
     return false;
 });
@@ -81,8 +85,8 @@ $(function () {
 }
     function getData(url) {
     $.get(url, function (data) {
-    $("#pagination_data").html(data);
-});
+        $("#pagination_data").html(data);
+    });
 }
     function clearCheckbox() {
     $('#addupdatepopup input').prop('checked', false);

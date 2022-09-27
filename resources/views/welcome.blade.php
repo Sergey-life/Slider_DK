@@ -6,7 +6,6 @@
             @endforeach
         </select>
     </div>
-
     <div
         style="--swiper-navigation-color: #fff; --swiper-pagination-color: #fff"
         class="swiper gallery-top"
