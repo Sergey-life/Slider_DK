@@ -36,6 +36,7 @@ $(function () {
     let action = $(this).attr('action');
     let method = $(this).attr('method');
     let formData = new FormData(this);
+
     callAjax(action, method, formData);
 });
     $(document).on("click", "#pagination a,#search_btn", function (e) {
@@ -57,9 +58,6 @@ $(function () {
     type: method,
     data: formData,
     success: function (data) {
-    console.log(action);
-    console.log(method);
-    console.log(formData);
     $(".alert").remove();
     obj.modal('hide');
     getData($("#search_btn").attr('href'));
