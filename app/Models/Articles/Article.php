@@ -9,7 +9,7 @@ class Article extends Model
 {
     use HasFactory;
 
-    public const PUBLISHED_ARTICLE = 1;
+    public const PUBLISHED = 1;
 
     protected $guarded = [];
 
