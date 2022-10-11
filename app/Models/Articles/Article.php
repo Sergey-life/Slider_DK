@@ -9,6 +9,8 @@ class Article extends Model
 {
     use HasFactory;
 
+    public const PUBLISHED_ARTICLE = 1;
+
     protected $guarded = [];
 
     public function tags()
