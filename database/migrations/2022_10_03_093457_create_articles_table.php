@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('title')->unique();
             $table->text('body');
             $table->string('slug', 60)->unique();
+            $table->string('image');
             $table->boolean('published')->default(1);
             $table->foreignId('topic_id')->references('id')->on('topics')->onDelete('cascade');
             $table->timestamps();

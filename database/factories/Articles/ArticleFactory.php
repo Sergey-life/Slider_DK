@@ -22,6 +22,7 @@ class ArticleFactory extends Factory
             'title'     => $this->faker->sentence(4),
             'body'      => $this->faker->text,
             'slug'      => Str::slug($this->faker->sentence(4)),
+            'image'     => $this->faker->imageUrl,
             'topic_id'  => Topic::get()->random()->id
         ];
     }
