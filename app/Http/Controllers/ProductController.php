@@ -88,12 +88,6 @@ class ProductController extends Controller
         $category = Category::find($request->category);
         $product->categories()->sync($category);
 
-//        if ($request->main_image) {
-//            foreach ($category as $item) {
-//                $item->update(['main_image' => $product->image]);
-//            }
-//        }
-
         $resp = $request->id ? 'Ви успішно оновили товар!' : 'Ви успішно створили товар!';
 
         return response()->json(['status' => true, 'message' => $resp]);

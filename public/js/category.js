@@ -3,12 +3,12 @@ $(function () {
 
     $('select').change(function (e) {
         e.preventDefault();
-        let url = $('option').data('url')
+        let url = $('option').data('url');
         url = url.replace(1, e.target.value);
         $.ajax({
             url: url,
             type: 'GET',
-            dataType: 'json',
+            formData: 'json',
             success: function (resp) {
                 $('.swiper-slide').replaceWith(resp);
                 galleryThumbs.params.slidesPerView = $('.swiper__container').data('count');

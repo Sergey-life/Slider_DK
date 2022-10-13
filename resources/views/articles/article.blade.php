@@ -35,22 +35,25 @@
 
         <div class="album py-5 bg-light">
             <div class="container">
-                <div style="float: left;">
-                    <p style="font-size:16px;"><strong>Теми</strong></p>
-                    <fieldset>
-                        @foreach($topics as $topic)
-                            <input type="checkbox" name="topics[]" value="{{$topic->id}}">
-                            <label for="category">{{$topic->name}}</label><br>
-                        @endforeach
-                    </fieldset>
-                    <hr>
-                    <p style="font-size:16px;"><strong>Теги</strong></p>
-                    <fieldset>
-                        @foreach($tags as $tag)
-                            <input type="checkbox" name="tags[]" value="{{$tag->id}}">
-                            <label for="category">{{$tag->name}}</label><br>
-                        @endforeach
-                    </fieldset>
+                <div class="js-checkbox" style="float: left;">
+                    <form class="js-form" action="{{route('articles')}}" method="GET">
+                        @csrf
+                        <p style="font-size:16px;"><strong>Теми</strong></p>
+                        <fieldset>
+                            @foreach($topics as $topic)
+                                <input type="checkbox" name="topics[]" value="{{$topic->id}}">
+                                <label for="topic">{{$topic->name}}</label><br>
+                            @endforeach
+                        </fieldset>
+                        <hr>
+                        <p style="font-size:16px;"><strong>Теги</strong></p>
+                        <fieldset>
+                            @foreach($tags as $tag)
+                                <input type="checkbox" name="tags[]" value="{{$tag->id}}">
+                                <label for="tag">{{$tag->name}}</label><br>
+                            @endforeach
+                        </fieldset>
+                    </form>
                 </div>
                 <div class="row">
                     @foreach($articles as $article)
@@ -62,7 +65,7 @@
                                 <p class="card-text">{{ Str::limit($article->body, 80) }}</p>
                                 @foreach($article->tags as $tag)
                                     <div class="btn-group" style="margin-bottom: 10px;">
-                                        <div style="background: rgb(231, 242, 216); color: rgb(122, 185, 41);">{{ $tag->name }}</div><br>
+                                        <div style="border:1px solid #a0aec0;">{{ $tag->name }}</div><br>
                                     </div>
                                 @endforeach
                                 <div class="d-flex justify-content-between align-items-center">
@@ -92,7 +95,7 @@
         </div>
     </footer>
 
-
+    <script src="{{url('js/articles/article.js')}}"></script>
 {{--    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>--}}
 {{--    <script>window.jQuery || document.write('<script src="/docs/4.6/assets/js/vendor/jquery.slim.min.js"><\/script>')</script><script src="/docs/4.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>--}}
 </x-layout>
