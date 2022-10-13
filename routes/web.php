@@ -25,4 +25,4 @@ Route::middleware(['basicAuth'])->group(function () {
     ]);
 });
 
-Route::get('articles', [ArticleController::class, 'index']);
+Route::get('articles', [ArticleController::class, 'index'])->name('articles');

@@ -12,10 +12,11 @@ class ArticleController extends Controller
 {
     public function index()
     {
-        $topic = Topic::leftJoin('articles', 'articles.topic_id', '=', 'topics.id')
+        $topics = Topic::leftJoin('articles', 'articles.topic_id', '=', 'topics.id')
             ->select('topics.*')
             ->where('articles.published', Article::PUBLISHED)
             ->groupBy('topics.id')
+            ->orderBy('topics.id', 'ASC')
             ->get();
 
         $tags = Tag::leftJoin('article_tag', 'article_tag.tag_id', '=', 'tags.id')
@@ -25,10 +26,13 @@ class ArticleController extends Controller
             ->groupBy('tags.id')
             ->orderBy('tags.id', 'ASC')
             ->get();
-//        $topic = Topic::with('articles')->get();
-//        dump($tags);
-        foreach ($tags as $tag) {
-            dump($tag->id.' '.$tag->name);
-        }
+
+        $articles = Article::all();
+
+        return view('articles.article', [
+            'topics'    => $topics,
+            'tags'      => $tags,
+            'articles'  => $articles
+        ]);
     }
 }
