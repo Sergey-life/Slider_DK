@@ -34,53 +34,7 @@
     <main role="main">
 
         <div class="album py-5 bg-light">
-            <div class="container">
-                <div class="js-checkbox" style="float: left;">
-                    <form class="js-form" action="{{route('articles')}}" method="GET">
-                        @csrf
-                        <p style="font-size:16px;"><strong>Теми</strong></p>
-                        <fieldset>
-                            @foreach($topics as $topic)
-                                <input type="checkbox" name="topics[]" value="{{$topic->id}}">
-                                <label for="topic">{{$topic->name}}</label><br>
-                            @endforeach
-                        </fieldset>
-                        <hr>
-                        <p style="font-size:16px;"><strong>Теги</strong></p>
-                        <fieldset>
-                            @foreach($tags as $tag)
-                                <input type="checkbox" name="tags[]" value="{{$tag->id}}">
-                                <label for="tag">{{$tag->name}}</label><br>
-                            @endforeach
-                        </fieldset>
-                    </form>
-                </div>
-                <div class="row">
-                    @foreach($articles as $article)
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow-sm">
-                            <img src="{{ $article->image }}" alt="image">
-                            <div class="card-body">
-                                <h5>{{ Str::limit($article->title, 20) }}</h5>
-                                <p class="card-text">{{ Str::limit($article->body, 80) }}</p>
-                                @foreach($article->tags as $tag)
-                                    <div class="btn-group" style="margin-bottom: 10px;">
-                                        <div style="border:1px solid #a0aec0;">{{ $tag->name }}</div><br>
-                                    </div>
-                                @endforeach
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
-                                        <button type="button" class="btn btn-sm btn-outline-secondary">Edit</button>
-                                    </div>
-                                    <small class="text-muted">{{ $article->created_at }}</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
+            @include('articles.article-filter', ['articles' => $articles, 'topics' => $topics, 'tags' => $tags])
         </div>
 
     </main>

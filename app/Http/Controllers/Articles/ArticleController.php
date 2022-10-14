@@ -14,39 +14,31 @@ class ArticleController extends Controller
     {
         if ($request->ajax()) {
             $articles = Article::with('tags')
-                ->where('topic_id', $request->topics)
+                ->whereIn('topic_id', $request->topics)
                 ->get();
 
-            $tags = Article::leftJoin('topics', 'topics.id', '=', 'articles.id')
-                ->leftJoin('article_tag', 'article_tag.article_id', '=', 'articles.id')
+            $tags = Article::leftJoin('article_tag', 'article_tag.article_id', '=', 'articles.id')
                 ->leftJoin('tags', 'article_tag.tag_id', '=', 'tags.id')
                 ->select('tags.*')
-                ->where('topic_id', $request->topics)
+                ->whereIn('articles.topic_id', $request->topics)
                 ->groupBy('tags.id')
                 ->orderBy('tags.id', 'ASC')
                 ->get();
 
+            $html = view('articles.article-filter', [
+                'articles' => $articles,
+                'tags'     => $tags,
+                'topics'   => $this->getTopics(),
+                'checked'  => $request->topics ?: []
+            ])->render();
+
             return response()->json([
-                'articles'  => $articles,
-                'tags'      => $tags,
+                'html' => $html
             ]);
         }
 
-        $topics = Topic::leftJoin('articles', 'articles.topic_id', '=', 'topics.id')
-            ->select('topics.*')
-            ->where('articles.published', Article::PUBLISHED)
-            ->groupBy('topics.id')
-            ->orderBy('topics.id', 'ASC')
-            ->get();
-
-        $tags = Tag::leftJoin('article_tag', 'article_tag.tag_id', '=', 'tags.id')
-            ->leftJoin('articles', 'article_tag.article_id', '=', 'articles.id')
-            ->select('tags.*')
-            ->where('articles.published', Article::PUBLISHED)
-            ->groupBy('tags.id')
-            ->orderBy('tags.id', 'ASC')
-            ->get();
-
+        $topics = $this->getTopics();
+        $tags = $this->getTags();
         $articles = Article::with('tags')->get();
 
         return view('articles.article', [
@@ -56,8 +48,24 @@ class ArticleController extends Controller
         ]);
     }
 
-//    public function show(Request $request)
-//    {
-//        return response()->json($request->tags);
-//    }
+    private function getTopics()
+    {
+        return Topic::leftJoin('articles', 'articles.topic_id', '=', 'topics.id')
+            ->select('topics.*')
+            ->where('articles.published', Article::PUBLISHED)
+            ->groupBy('topics.id')
+            ->orderBy('topics.id', 'ASC')
+            ->get();
+    }
+
+    private function getTags()
+    {
+        return Tag::leftJoin('article_tag', 'article_tag.tag_id', '=', 'tags.id')
+            ->leftJoin('articles', 'article_tag.article_id', '=', 'articles.id')
+            ->select('tags.*')
+            ->where('articles.published', Article::PUBLISHED)
+            ->groupBy('tags.id')
+            ->orderBy('tags.id', 'ASC')
+            ->get();
+    }
 }

@@ -16,31 +16,11 @@
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css"
     />
-
-    <style>
-        .bd-placeholder-img {
-            font-size: 1.125rem;
-            text-anchor: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-
-        @media (min-width: 768px) {
-            .bd-placeholder-img-lg {
-                font-size: 3.5rem;
-            }
-        }
-
-        .test {
-            margin-right: 30px;
-        }
-    </style>
     <!-- Demo styles -->
     @if(url()->current() == route('index'))
         <link rel="stylesheet" href="{{url('css/style.css')}}">
     @endif
+    <link rel="stylesheet" href="{{url('css/main.css')}}">
 </head>
 <body>
 {{$slot}}

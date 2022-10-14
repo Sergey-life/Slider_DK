@@ -1,5 +1,5 @@
 $(function () {
-    $('.js-checkbox').change(function (e) {
+    $(document).change('.js-checkbox' ,function (e) {
         e.preventDefault();
         let form = $('.js-form');
         let url = form.attr('action');
@@ -8,7 +8,9 @@ $(function () {
             type: 'GET',
             data: form.serialize(),
             success: function (resp) {
-                console.log(resp);
+                // $('input').find(`[value=${$(this).data('tags')}]`).prop('checked', true);
+                $('.js-articles').replaceWith(resp.html);
+                console.log(form)
             }
         });
     });
