@@ -8,9 +8,10 @@ $(function () {
             type: 'GET',
             data: form.serialize(),
             success: function (resp) {
-                // $('input').find(`[value=${$(this).data('tags')}]`).prop('checked', true);
                 $('.js-articles').replaceWith(resp.html);
-                console.log(form)
+                console.log(resp.tags);
+                console.log(resp.topics);
+                console.log(resp.articles);
             }
         });
     });

@@ -5,7 +5,7 @@
             <p><strong>Теми</strong></p>
             <fieldset>
                 @foreach($topics as $topic)
-                    <input id="topic" type="checkbox" name="topics[]" @if(isset($checked) && in_array($topic->id, $checked)) checked @endif value="{{$topic->id}}">
+                    <input id="topic" type="checkbox" name="topics[]" value="{{$topic->id}}" @if(isset($checkedTopics) && in_array($topic->id, $checkedTopics)) checked @endif>
                     <label for="topic">{{$topic->name}}</label><br>
                 @endforeach
             </fieldset>
@@ -13,7 +13,7 @@
             <p><strong>Теги</strong></p>
             <fieldset>
                 @foreach($tags as $tag)
-                    <input id="tag" type="checkbox" name="tags[]" value="{{$tag->id}}">
+                    <input id="tag" type="checkbox" name="tags[]" value="{{$tag->id}}" @if(isset($checkedTags) && in_array($tag->id, $checkedTags)) checked @endif>
                     <label for="tag">{{$tag->name}}</label><br>
                 @endforeach
             </fieldset>
