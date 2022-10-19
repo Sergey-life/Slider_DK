@@ -9,9 +9,9 @@ $(function () {
             data: form.serialize(),
             success: function (resp) {
                 $('.js-articles').replaceWith(resp.html);
-                console.log(resp.tags);
-                console.log(resp.topics);
                 console.log(resp.articles);
+                console.log(resp.topics);
+                console.log(resp.tags);
             }
         });
     });
