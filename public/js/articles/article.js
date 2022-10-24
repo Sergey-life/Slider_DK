@@ -12,6 +12,7 @@ $(function () {
                 console.log(resp.articles);
                 console.log(resp.topics);
                 console.log(resp.tags);
+                console.log(resp.checkedTags);
             }
         });
     });

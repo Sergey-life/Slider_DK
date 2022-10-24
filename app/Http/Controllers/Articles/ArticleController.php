@@ -13,6 +13,10 @@ class ArticleController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
+            if ($request->topics || $request->tags) {
+                $articles = $this->findArticlesDependingOnTopicsAndTags($request->topics, $request->tags);
+            }
+
             if ($request->tags) {
                 //1. Витягнути всі новини по $request->tags і по $request->topics
                 //если в фильтре есть темы, то теги нужно выводить в зависимости от выбранных тем
@@ -34,61 +38,11 @@ class ArticleController extends Controller
             }
             //has context menu
 
-            if ($request->topics) {
-                $articlesIds = [];
-                $tagsIds = [];
-
-                $articles = Article::with('tags')
-                    ->whereIn('topic_id', $request->topics)
-                    ->get();
-
-                foreach ($articles as $article) {
-                    $articlesIds[] = $article->id; //get articles ids
-                    foreach ($article->tags as $tag) {
-                        if (!in_array($tag->id, $tagsIds)) {
-                            $tagsIds[] = $tag->id; // get tags ids
-                        }
-                    }
-                }
-
-                $tags = Tag::leftJoin('article_tag' , 'article_tag.tag_id', '=', 'tags.id')
-                    ->select('tags.*')
-                    ->whereIn('article_tag.tag_id', $tagsIds)
-                    ->groupBy('tags.id')
-                    ->orderBy('tags.id', 'ASC')
-                    ->get();
-
-//                $tags = Tag::whereHas('articles', function ($query) use ($tagsIds) {
-//                    $query->whereIn('tags.id', $tagsIds);
-//                })->get();
-
-//                dump($tags);
-//                $topics = $this->getTopics();
-            }
-            if ($request->tags) {
-                $articles = Article::with('tags')
-                    ->leftJoin('article_tag', 'articles.id', '=', 'article_tag.article_id')
-                    ->select('articles.*')
-                    ->whereIn('article_tag.tag_id', $request->tags)
-                    ->groupBy('articles.id')
-                    ->orderBy('articles.id')
-                    ->get();
-
-                $topics = Article::leftJoin('article_tag', 'article_tag.article_id', '=', 'articles.id')
-                    ->leftJoin('topics', 'articles.topic_id', '=', 'topics.id')
-                    ->select('topics.*')
-                    ->whereIn('article_tag.tag_id', $request->tags)
-                    ->groupBy('topics.id')
-                    ->orderBy('topics.id')
-                    ->get();
-
-//                $tags = $this->getTags();
-            }
 
             $html = view('articles.article-filter', [
-                'articles'       => !isset($articles) ? Article::with('tags')->get() : $articles,
-                'tags'           => !isset($tags) ? $this->getTags() : $tags,
-                'topics'         => !isset($topics) ? $this->getTopics() : $topics,
+                'articles'       => !isset($articles) ? $this->findAvailableArticles() : $articles,
+                'tags'           => !isset($tags) ? $this->findAvailableTags() : $tags,
+                'topics'         => !isset($topics) ? $this->findAvailableTopics() : $topics,
                 'checkedTopics'  => $request->topics,
                 'checkedTags'    => $request->tags
             ])->render();
@@ -96,23 +50,25 @@ class ArticleController extends Controller
             return response()->json([
                 'html' => $html,
                 // test data
-                'articles' => !isset($articles) ? Article::with('tags')->get() : $articles,
-                'tags'     => !isset($tags) ? $this->getTags() : $tags,
-                'topics'   => !isset($topics) ? $this->getTopics() : $topics,
+                'articles' => $articles,
+                'tags'     => !isset($tags) ? $this->findAvailableTags() : $tags,
+                'topics'   => !isset($topics) ? $this->findAvailableTopics() : $topics,
+                'checkedTags'    => $request->tags
             ]);
         }
 
-        $topics = $this->findAvailableTopics();
-        $tags = $this->findAvailableTags();
-        $articles = Article::with('tags')
+        return view('articles.article', [
+            'topics'    => $this->findAvailableTopics(),
+            'tags'      => $this->findAvailableTags(),
+            'articles'  => $this->findAvailableArticles()
+        ]);
+    }
+
+    private function findAvailableArticles()
+    {
+        return Article::with('tags')
             ->where('published', Article::PUBLISHED)
             ->get();
-
-        return view('articles.article', [
-            'topics'    => $topics,
-            'tags'      => $tags,
-            'articles'  => $articles
-        ]);
     }
 
     private function findAvailableTopics()
@@ -136,11 +92,29 @@ class ArticleController extends Controller
             ->get();
     }
 
-    private function findArticlesDependingOnTopicsAndTags($topicIds, $tagIds)
+    private function findArticlesDependingOnTopicsAndTags($topicIds = null, $tagIds = null)
     {
         /*
          * TODO - Витягнути всі новини по $request->tags і по $request->topics
          */
+        if ($topicIds && is_null($tagIds)){
+            return Article::with('tags')
+                ->where('published', Article::PUBLISHED)
+                ->whereIn('topic_id', $topicIds)
+                ->get();
+        }
+        if ($tagIds && is_null($topicIds)) {
+            return Article::with('tags')
+                ->join('article_tag', 'articles.id', '=', 'article_tag.article_id')
+                ->where('articles.published', Article::PUBLISHED)
+                ->whereIn('article_tag.tag_id', $tagIds)
+                ->get();
+        }
+        if (!is_null($tagIds) && !is_null($topicIds)) {
+            /*
+             * TODO - Витягнути всі новини по $request->tags і по $request->topics
+             */
+        }
     }
 
     private function findTagsDependingOnTopics($topicIds, $tagIds)
