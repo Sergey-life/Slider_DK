@@ -111,9 +111,13 @@ class ArticleController extends Controller
                 ->get();
         }
         if (!is_null($tagIds) && !is_null($topicIds)) {
-            /*
-             * TODO - Витягнути всі новини по $request->tags і по $request->topics
-             */
+            return Article::with('tags')
+                ->join('article_tag', 'articles.id', '=', 'article_tag.article_id')
+                ->where('articles.published', Article::PUBLISHED)
+                ->whereIn('article_tag.tag_id', $tagIds)
+                ->whereIn('articles.topic_id', $topicIds)
+                ->get();
+
         }
     }
 
@@ -123,6 +127,17 @@ class ArticleController extends Controller
          * TODO - если в фильтре есть темы, то теги нужно выводить в зависимости от выбранных тем
          * TODO - Отримати всі теги відповідаючи переданим топікам
          */
+        return Tag::join('article_tag', 'tags.id', '=', 'article_tag.tag_id')
+            ->whereIn('article_tag.article_id', function ($query) use ($tagIds, $topicIds) {
+                $query->from('articles')
+                    ->join('article_tag', 'articles.id', '=', 'article_tag.article_id')
+                    ->select('articles.id')
+                    ->where('articles.published', Article::PUBLISHED)
+                    ->whereIn('article_tag.tag_id', $tagIds)
+                    ->whereIn('articles.topic_id', $topicIds);
+            })
+            ->orderBy('tags.id')
+            ->get();
     }
 
     private function findTopicsDependingOnTags($tagIds, $topicIds)
