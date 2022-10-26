@@ -16,6 +16,14 @@ class ArticleController extends Controller
             if ($request->topics || $request->tags) {
                 $articles = $this->findArticlesDependingOnTopicsAndTags($request->topics, $request->tags);
             }
+            // вивести теги прив'язані до новин якщо в фільтрі вибрані тільки теми
+            if ($request->topics && is_null($request->tags)) {
+                $tags = $this->findTagsDependingOnArticles();
+            }
+            // вивести теми прив'язані до новин якщо в фільтрі вибрані тільки теги
+            if ($request->tags && is_null($request->topics)) {
+                $topics = $this->findTopicsDependingOnArticles();
+            }
 
             if ($request->tags) {
                 //1. Витягнути всі новини по $request->tags і по $request->topics
@@ -40,7 +48,7 @@ class ArticleController extends Controller
 
 
             $html = view('articles.article-filter', [
-                'articles'       => !isset($articles) ? $this->findAvailableArticles() : $articles,
+                'articles'       => $articles,
                 'tags'           => !isset($tags) ? $this->findAvailableTags() : $tags,
                 'topics'         => !isset($topics) ? $this->findAvailableTopics() : $topics,
                 'checkedTopics'  => $request->topics,
@@ -48,12 +56,12 @@ class ArticleController extends Controller
             ])->render();
 
             return response()->json([
-                'html' => $html,
+                'html'        => $html,
                 // test data
-                'articles' => $articles,
-                'tags'     => !isset($tags) ? $this->findAvailableTags() : $tags,
-                'topics'   => !isset($topics) ? $this->findAvailableTopics() : $topics,
-                'checkedTags'    => $request->tags
+                'articles'    => $articles,
+                'tags'        => !isset($tags) ? $this->findAvailableTags() : $tags,
+                'topics'      => !isset($topics) ? $this->findAvailableTopics() : $topics,
+//                'checkedTags' => $request->tags
             ]);
         }
 
@@ -92,6 +100,20 @@ class ArticleController extends Controller
             ->get();
     }
 
+    private function findTagsDependingOnArticles($topicIds)
+    {
+        /*
+         * TODO - вивести теги прив'язані до новин якщо в фільтрі вибрані тільки теми
+         */
+    }
+
+    private function findTopicsDependingOnArticles($tagIds)
+    {
+        /*
+         * TODO - вивести теми прив'язані до новин якщо в фільтрі вибрані тільки теги
+         */
+    }
+
     private function findArticlesDependingOnTopicsAndTags($topicIds = null, $tagIds = null)
     {
         /*
@@ -128,23 +150,41 @@ class ArticleController extends Controller
          * TODO - Отримати всі теги відповідаючи переданим топікам
          */
         return Tag::join('article_tag', 'tags.id', '=', 'article_tag.tag_id')
+            ->select('tags.id', 'tags.name')
             ->whereIn('article_tag.article_id', function ($query) use ($tagIds, $topicIds) {
                 $query->from('articles')
                     ->join('article_tag', 'articles.id', '=', 'article_tag.article_id')
+                    ->join('topics', 'topics.id', '=', 'articles.topic_id')
                     ->select('articles.id')
                     ->where('articles.published', Article::PUBLISHED)
                     ->whereIn('article_tag.tag_id', $tagIds)
-                    ->whereIn('articles.topic_id', $topicIds);
+                    ->whereIn('topics.id', $topicIds);
             })
+            ->groupBy('tags.id')
             ->orderBy('tags.id')
             ->get();
     }
 
-    private function findTopicsDependingOnTags($tagIds, $topicIds)
+    private function findTopicsDependingOnTags($topicIds, $tagIds)
     {
         /*
-         * TODO - если в фильтре есть теги, то темы нужно выводить в зависимости от выбранных тегов
-         * TODO - Якщо передані топіки і теги то витагнути топіки та теги згідно переданими топіками та тегами
-         */
+        * TODO - если в фильтре есть теги, то темы нужно выводить в зависимости от выбранных тегов
+        * TODO - Якщо передані топіки і теги то витагнути топіки та теги згідно переданими топіками та тегами
+        */
+        return Topic::join('articles', 'topics.id', '=', 'articles.topic_id')
+            ->select('topics.id', 'topics.name')
+            ->whereIn('articles.id', function ($query) use ($tagIds, $topicIds) {
+                $query->from('articles')
+                    ->join('article_tag', 'articles.id', '=', 'article_tag.article_id')
+                    ->join('topics', 'topics.id', '=', 'articles.topic_id')
+                    ->select('articles.id')
+                    ->where('articles.published', Article::PUBLISHED)
+                    ->whereIn('article_tag.tag_id', $tagIds)
+                    ->whereIn('topics.id', $topicIds);
+            })
+            ->groupBy('topics.id')
+            ->orderBy('topics.id')
+            ->get();
+
     }
 }
