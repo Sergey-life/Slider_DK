@@ -10,6 +10,7 @@ class Article extends Model
     use HasFactory;
 
     public const PUBLISHED = 1;
+    public const ACTIVE = 1;
 
     protected $guarded = [];
 

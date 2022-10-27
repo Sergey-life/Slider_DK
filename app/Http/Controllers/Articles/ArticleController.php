@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Articles\Article;
 use App\Models\Articles\Tag;
 use App\Models\Articles\Topic;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class ArticleController extends Controller
@@ -18,11 +19,11 @@ class ArticleController extends Controller
             }
             // вивести теги прив'язані до новин якщо в фільтрі вибрані тільки теми
             if ($request->topics && is_null($request->tags)) {
-                $tags = $this->findTagsDependingOnArticles();
+                $tags = $this->findTagsDependingOnArticles($request->topics);
             }
             // вивести теми прив'язані до новин якщо в фільтрі вибрані тільки теги
             if ($request->tags && is_null($request->topics)) {
-                $topics = $this->findTopicsDependingOnArticles();
+                $topics = $this->findTopicsDependingOnArticles($request->tags);
             }
 
             if ($request->tags) {
@@ -49,8 +50,8 @@ class ArticleController extends Controller
 
             $html = view('articles.article-filter', [
                 'articles'       => $articles,
-                'tags'           => !isset($tags) ? $this->findAvailableTags() : $tags,
-                'topics'         => !isset($topics) ? $this->findAvailableTopics() : $topics,
+                'tags'           => $tags,
+                'topics'         => $topics,
                 'checkedTopics'  => $request->topics,
                 'checkedTags'    => $request->tags
             ])->render();
@@ -59,9 +60,8 @@ class ArticleController extends Controller
                 'html'        => $html,
                 // test data
                 'articles'    => $articles,
-                'tags'        => !isset($tags) ? $this->findAvailableTags() : $tags,
-                'topics'      => !isset($topics) ? $this->findAvailableTopics() : $topics,
-//                'checkedTags' => $request->tags
+                'tags'        => $tags,
+                'topics'      => $topics,
             ]);
         }
 
@@ -76,6 +76,8 @@ class ArticleController extends Controller
     {
         return Article::with('tags')
             ->where('published', Article::PUBLISHED)
+            ->where('articles.active', Article::ACTIVE)
+            ->where('articles.created_at', '<', Carbon::now()->format('Y-m-d H:i:s'))
             ->get();
     }
 
@@ -84,6 +86,8 @@ class ArticleController extends Controller
         return Topic::leftJoin('articles', 'articles.topic_id', '=', 'topics.id')
             ->select('topics.*')
             ->where('articles.published', Article::PUBLISHED)
+            ->where('articles.active', Article::ACTIVE)
+            ->where('articles.created_at', '<', Carbon::now()->format('Y-m-d H:i:s'))
             ->groupBy('topics.id')
             ->orderBy('topics.id', 'ASC')
             ->get();
@@ -95,6 +99,8 @@ class ArticleController extends Controller
             ->leftJoin('articles', 'article_tag.article_id', '=', 'articles.id')
             ->select('tags.*')
             ->where('articles.published', Article::PUBLISHED)
+            ->where('articles.active', Article::ACTIVE)
+            ->where('articles.created_at', '<', Carbon::now()->format('Y-m-d H:i:s'))
             ->groupBy('tags.id')
             ->orderBy('tags.id', 'ASC')
             ->get();
@@ -105,6 +111,20 @@ class ArticleController extends Controller
         /*
          * TODO - вивести теги прив'язані до новин якщо в фільтрі вибрані тільки теми
          */
+        return Tag::join('article_tag', 'tags.id', '=', 'article_tag.tag_id')
+            ->select('tags.id', 'tags.name')
+            ->whereIn('article_tag.article_id', function ($query) use ($topicIds) {
+                $query->from('articles')
+                    ->join('topics', 'topics.id', '=', 'articles.topic_id')
+                    ->select('articles.id')
+                    ->where('articles.published', Article::PUBLISHED)
+                    ->where('articles.active', Article::ACTIVE)
+                    ->where('articles.created_at', '<', Carbon::now()->format('Y-m-d H:i:s'))
+                    ->whereIn('topics.id', $topicIds);
+            })
+            ->groupBy('tags.id')
+            ->orderBy('tags.id')
+            ->get();
     }
 
     private function findTopicsDependingOnArticles($tagIds)
@@ -112,6 +132,20 @@ class ArticleController extends Controller
         /*
          * TODO - вивести теми прив'язані до новин якщо в фільтрі вибрані тільки теги
          */
+        return Topic::join('articles', 'topics.id', '=', 'articles.topic_id')
+            ->select('topics.id', 'topics.name')
+            ->whereIn('articles.id', function ($query) use ($tagIds) {
+                $query->from('articles')
+                    ->join('article_tag', 'articles.id', 'article_tag.article_id')
+                    ->select('articles.id')
+                    ->where('articles.published', Article::PUBLISHED)
+                    ->where('articles.active', Article::ACTIVE)
+                    ->where('articles.created_at', '<', Carbon::now()->format('Y-m-d H:i:s'))
+                    ->whereIn('article_tag.tag_id', $tagIds);
+            })
+            ->groupBy('topics.id')
+            ->orderBy('topics.id')
+            ->get();
     }
 
     private function findArticlesDependingOnTopicsAndTags($topicIds = null, $tagIds = null)
@@ -122,22 +156,34 @@ class ArticleController extends Controller
         if ($topicIds && is_null($tagIds)){
             return Article::with('tags')
                 ->where('published', Article::PUBLISHED)
+                ->where('articles.active', Article::ACTIVE)
+                ->where('articles.created_at', '<', Carbon::now()->format('Y-m-d H:i:s'))
                 ->whereIn('topic_id', $topicIds)
                 ->get();
         }
         if ($tagIds && is_null($topicIds)) {
             return Article::with('tags')
+                ->select('articles.*')
                 ->join('article_tag', 'articles.id', '=', 'article_tag.article_id')
                 ->where('articles.published', Article::PUBLISHED)
+                ->where('articles.active', Article::ACTIVE)
+                ->where('articles.created_at', '<', Carbon::now()->format('Y-m-d H:i:s'))
                 ->whereIn('article_tag.tag_id', $tagIds)
+                ->groupBy('articles.id')
+                ->orderBy('articles.id')
                 ->get();
         }
         if (!is_null($tagIds) && !is_null($topicIds)) {
             return Article::with('tags')
                 ->join('article_tag', 'articles.id', '=', 'article_tag.article_id')
+                ->select('articles.*')
                 ->where('articles.published', Article::PUBLISHED)
+                ->where('articles.active', Article::ACTIVE)
+                ->where('articles.created_at', '<', Carbon::now()->format('Y-m-d H:i:s'))
                 ->whereIn('article_tag.tag_id', $tagIds)
                 ->whereIn('articles.topic_id', $topicIds)
+                ->groupBy('articles.id')
+                ->orderBy('articles.id')
                 ->get();
 
         }
@@ -157,6 +203,8 @@ class ArticleController extends Controller
                     ->join('topics', 'topics.id', '=', 'articles.topic_id')
                     ->select('articles.id')
                     ->where('articles.published', Article::PUBLISHED)
+                    ->where('articles.active', Article::ACTIVE)
+                    ->where('articles.created_at', '<', Carbon::now()->format('Y-m-d H:i:s'))
                     ->whereIn('article_tag.tag_id', $tagIds)
                     ->whereIn('topics.id', $topicIds);
             })
@@ -179,6 +227,8 @@ class ArticleController extends Controller
                     ->join('topics', 'topics.id', '=', 'articles.topic_id')
                     ->select('articles.id')
                     ->where('articles.published', Article::PUBLISHED)
+                    ->where('articles.active', Article::ACTIVE)
+                    ->where('articles.created_at', '<', Carbon::now()->format('Y-m-d H:i:s'))
                     ->whereIn('article_tag.tag_id', $tagIds)
                     ->whereIn('topics.id', $topicIds);
             })

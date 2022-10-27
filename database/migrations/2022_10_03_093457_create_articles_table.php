@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('slug', 60)->unique();
             $table->string('image');
             $table->boolean('published')->default(1);
+            $table->boolean('active')->default(1);
             $table->foreignId('topic_id')->references('id')->on('topics')->onDelete('cascade');
             $table->timestamps();
         });
