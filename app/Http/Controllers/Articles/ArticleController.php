@@ -45,7 +45,11 @@ class ArticleController extends Controller
                     $topics = $this->findAvailableTopics();
                 }
             }
-            //has context menu
+            if (is_null($request->topics) && is_null($request->tags)) {
+                $topics = $this->findAvailableTopics();
+                $tags = $this->findAvailableTags();
+                $articles = $this->findAvailableArticles();
+            }
 
 
             $html = view('articles.article-filter', [
