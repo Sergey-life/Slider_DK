@@ -54,10 +54,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - INSTALL_XDEBUG=${INSTALL_XDEBUG}
     container_name: php
+#    environment:
+#      PHP_IDE_CONFIG: "serverName=Docker"
     volumes:
       -  .:/var/www/html
     ports:
-      - "9000:9000"
+      - "9004:9006"
     networks:
       - laravel

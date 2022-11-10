@@ -61,7 +61,6 @@ class ArticleController extends Controller
                 $articles = $this->articleRepository->findAvailableArticles();
             }
 
-
             $html = view('articles.article-filter', [
                 'articles'       => $articles,
                 'tags'           => $tags,

@@ -32,6 +32,12 @@
                                 <div class="tags-name">{{ $tag->name }}</div><br>
                             </div>
                         @endforeach
+                        <div>
+                            {{$article->topic->name}}
+                        </div>
+                        <div>
+                            {{$article->id}}
+                        </div>
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="btn-group">
                                 <button type="button" class="btn btn-sm btn-outline-secondary">View</button>
